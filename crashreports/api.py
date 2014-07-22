@@ -5,8 +5,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import login_required
 from dateutil import parser as dateparser
 from models import CrashReport, CrashReportGroup
-from admin.models import Config, AccessToken
-from pivotaltracker.api import PivotalApi
+from admin.models import AccessToken
 
 class NewCrashReportHandler(webapp2.RequestHandler):
     def post(self):
@@ -19,13 +18,6 @@ class NewCrashReportHandler(webapp2.RequestHandler):
             url_info = urlparse.urlparse(self.request.url)
             base_url = url_info.scheme + '://' + url_info.netloc
 
-            # Create a bug on Pivotal Tracker
-            config = Config.get_app_config()
-            project_id = config.pivotal_project_id
-            auth_token = config.pivotal_auth_token
-            pivotal_api = PivotalApi(project_id, auth_token)
-            pivotal_api.createbug(report, base_url)
-
             # Return a response
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.write('Report %d saved' % report.key.id())
@@ -37,14 +29,7 @@ class NewCrashReportHandler(webapp2.RequestHandler):
 
     def is_authorized(self, request):
         # Check if there's a valid access token in the request
-        custom_data = request.get('CUSTOM_DATA')
-        if custom_data != None:
-            # Custom data from ACRA is pretty weirdly formatted
-            # e.g. 'accessToken = 390d904880974f369de5466c949cbaab 123 = abc'
-            # Ugh. This is ugly.
-            tokens = custom_data.rstrip('\n').replace(' = ', ' ').split(' ')
-            params = {tokens[i*2]: tokens[i*2+1] for i in range(len(tokens) / 2)}
-            return AccessToken.is_authorized(params['accessToken'])
+        return request.get('PACKAGE_NAME').startswith("com.hanhuy")
 
     def parse_crash_report(self, request):
         # Get or create the parent report group for this crash report
@@ -56,6 +41,7 @@ class NewCrashReportHandler(webapp2.RequestHandler):
 
         # Parse POST body
         report.package_name             = package_name
+        report.logcat                   = request.get('LOGCAT')
         report.android_version          = request.get('ANDROID_VERSION')
         report.app_version_code         = request.get('APP_VERSION_CODE')
         report.app_version_name         = request.get('APP_VERSION_NAME')

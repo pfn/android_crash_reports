@@ -21,6 +21,7 @@ class CrashReport(ndb.Model):
     app_version_code        = ndb.StringProperty()
     app_version_name        = ndb.StringProperty()
     available_mem_size      = ndb.StringProperty()
+    logcat                  = ndb.TextProperty()
     brand                   = ndb.TextProperty()
     build                   = ndb.TextProperty()
     crash_configuration     = ndb.TextProperty()

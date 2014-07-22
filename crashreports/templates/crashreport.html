@@ -2,21 +2,41 @@
   <body>
     <h3>{{ report.stack_summary }}</h3>
 
-    <table>
-      <tr>
-        <td>Package name:</td>
-        <td>{{ report.package_name }}</td>
-      </tr>
-      <tr>
-        <td>App version:</td>
-        <td>{{ report.app_version_name }}</td>
-      </tr>
-      <tr>
-        <td>Android version:</td>
-        <td>{{ report.android_version }}</td>
-      </tr>
-    </table>
+    [
+      {% if prev %}
+        <a href="{{ prev|get_id }}">&lt; prev |</a>
+      {% endif %}
+      <a href="..">Back</a>
+      {% if next %}
+        <a href="{{ next|get_id }}">| next &gt;</a>
+      {% endif %}
+    ]
 
-    <pre>{{ report.stack_trace }}</pre>
+    <dl>
+      <dt>Package name:</td>
+      <dd>{{ report.package_name }}</td>
+      <dt>App version:</td>
+      <dd>{{ report.app_version_name }}</td>
+      <dt>Android version:</td>
+      <dd>{{ report.android_version }}</td>
+      <dt>Reported on:</td>
+      <dd id="reported-on">No Javascript?</td>
+      <dt>Stack trace</td>
+      <dd><pre>
+{{ report.stack_trace }}
+</pre></dd>
+      <dt>Logs</dd>
+      <dd><pre>
+{{ report.logcat }}
+</pre></dd>
+    </dl>
+    <script type="text/javascript">
+      var dt = document.getElementById("reported-on");
+      dt.textContent = new Date({{ report.ts }} * 1000).toLocaleString();
+    </script>
+
+  <form action="../delete/id/{{ report|get_id }}" method="post">
+    <input type="submit" name="Delete" value="Delete"/>
+  </form>
   </body>
 </html>

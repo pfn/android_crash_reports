@@ -1,14 +1,6 @@
 import uuid
 from google.appengine.ext import ndb
 
-class Config(ndb.Model):
-    pivotal_project_id      = ndb.StringProperty()
-    pivotal_auth_token      = ndb.StringProperty()
-    
-    @classmethod
-    def get_app_config(cls):
-        return cls.get_or_insert('config')
-
 class AccessToken(ndb.Model):
     token = ndb.StringProperty()
 

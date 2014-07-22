@@ -1,7 +1,17 @@
 <html>
   <body>
+    [ <a href="..">Back</a> ]
+    <dl>
     {% for r in reports %}
-    <p><a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></p>
+    <dt id="report-{{ r|get_id }}">
+      {{ r.ts }}
+    </dt>
+    <dd><a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></dd>
+    <script type="text/javascript">
+      var dt = document.getElementById("report-{{ r|get_id }}");
+      dt.textContent = new Date({{ r.ts }} * 1000).toLocaleString();
+    </script>
     {% endfor %}
+    </dl>
   </body>
 </html>

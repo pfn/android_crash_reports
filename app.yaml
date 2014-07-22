@@ -1,4 +1,4 @@
-application: android-crash-reports
+application: hanhuy-acra
 version: 1
 runtime: python27
 api_version: 1
@@ -9,10 +9,10 @@ handlers:
   script: crashreports.api.app
 - url: /reports/.*
   script: crashreports.crashreports.app
-  login: required
+  login: admin
 - url: /admin/.*
   script: admin.admin.app
-  login: required
+  login: admin
 - url: /
   script: main.main.app
-  login: required
+  login: admin

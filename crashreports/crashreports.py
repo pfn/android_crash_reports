@@ -1,10 +1,10 @@
 import os
 import webapp2
-from google.appengine.ext import webapp
+from google.appengine.ext import webapp, ndb
 from google.appengine.ext.webapp import template
 from models import CrashReport, CrashReportGroup
 from utils.decorators import cached
-from time import mktime
+from time import mktime, time
 
 webapp.template.register_template_library('crashreports.templatefilters')
 
@@ -34,6 +34,7 @@ class CrashReportsForPackageHandler(webapp2.RequestHandler):
         reports.sort(lambda x,y: y.ts - x.ts)
 
         template_values = {
+            'pkg': package_name,
             'reports': reports,
         }
         
@@ -45,7 +46,15 @@ class CrashReportDeleteHandler(webapp2.RequestHandler):
         group = CrashReportGroup.get_group(package_name)
         report = CrashReport.get_by_id(long(report_id), parent=group.key)
         report.key.delete()
-        self.redirect("/reports/package/%s" % package_name)
+        self.redirect("/reports/package/%s?ts=%f" % (package_name, time()))
+
+class CrashReportDeletesHandler(webapp2.RequestHandler):
+    def post(self, package_name):
+        group = CrashReportGroup.get_group(package_name)
+        selected = self.request.get("selected", allow_multiple=True)
+        selected = map(lambda s: ndb.Key(CrashReport, long(s), parent=group.key), selected)
+        ndb.delete_multi(selected)
+        self.redirect("/reports/package/%s?ts=%f" % (package_name, time()))
 
 class CrashReportHandler(webapp2.RequestHandler):
     def get(self, package_name, report_id):
@@ -87,6 +96,7 @@ class CrashReportsRedirectHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/reports/package/(.+)/delete/id/(\d+)', CrashReportDeleteHandler),
+    ('/reports/package/(.+)/delete',          CrashReportDeletesHandler),
     ('/reports/package/(.+)/id/(\d+)',        CrashReportHandler),
     ('/reports/package/(.+)/id/?',            CrashPackageRedirectHandler),
     ('/reports/package/(.+?)/?',              CrashReportsForPackageHandler),

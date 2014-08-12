@@ -1,17 +1,54 @@
 <html>
+  <style type="text/css">
+    a {
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
   <body>
+    <script type="text/javascript">
+      var $  = document.getElementById.bind(document);
+      var $$ = document.getElementsByName.bind(document);
+
+      window.onload = function() {
+        $("toggle").onclick = function() {
+          var mode = undefined;
+          var inputs = $("reports-form").elements;
+          for (var i = 0; i < inputs.length; ++i) {
+            if (inputs[i].type == "checkbox") {
+              if (mode === undefined) {
+                mode = !inputs[i].checked;
+              }
+
+              inputs[i].checked = mode;
+            }
+          }
+          return false;
+        };
+      };
+    </script>
     [ <a href="..">Back</a> ]
+
+    <form id="reports-form" method="post" action="{{ pkg }}/delete">
+    <p>
+    <a id="toggle" href="#">Select/Deselect All</a>
+    </p>
+    <input type="submit" value="Delete selected"/>
     <dl>
     {% for r in reports %}
-    <dt id="report-{{ r|get_id }}">
-      {{ r.ts }}
+    <dt>
+      <input type="checkbox" name="selected" id="{{ r|get_id }}" value="{{ r|get_id }}"/>
+      <label for="{{ r|get_id }}" id="report-ts-{{ r|get_id }}">{{ r.ts }}</label>
     </dt>
     <dd><a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></dd>
     <script type="text/javascript">
-      var dt = document.getElementById("report-{{ r|get_id }}");
+      var dt = $("report-ts-{{ r|get_id }}");
       dt.textContent = new Date({{ r.ts }} * 1000).toLocaleString();
     </script>
     {% endfor %}
     </dl>
+    </form>
   </body>
 </html>

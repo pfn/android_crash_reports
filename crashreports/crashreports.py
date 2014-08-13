@@ -52,7 +52,7 @@ class CrashReportDeleteHandler(webapp2.RequestHandler):
 class CrashReportDeletesHandler(webapp2.RequestHandler):
     def post(self, package_name):
         group = CrashReportGroup.get_group(package_name)
-        selected = self.request.get("selected", allow_multiple=True)
+        selected = self.request.get_all("selected")
         selected = map(lambda s: ndb.Key(
             CrashReportTrace, s, parent=group.key), selected)
         for trace in selected:

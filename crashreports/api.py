@@ -4,7 +4,7 @@ import webapp2
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import login_required
 from dateutil import parser as dateparser
-from models import CrashReport, CrashReportGroup
+from models import CrashReport, CrashReportGroup, CrashReportTrace
 from admin.models import AccessToken
 
 class NewCrashReportHandler(webapp2.RequestHandler):
@@ -34,10 +34,18 @@ class NewCrashReportHandler(webapp2.RequestHandler):
     def parse_crash_report(self, request):
         # Get or create the parent report group for this crash report
         package_name = request.get('PACKAGE_NAME')
+        stack_trace  = request.get('STACK_TRACE')
         report_group = CrashReportGroup.get_group(package_name)
+        report_trace = CrashReportTrace.get_trace(report_group.key, stack_trace)
 
         # Create a new crash report
-        report = CrashReport(parent=report_group.key)
+        report = CrashReport(parent=report_trace.key)
+
+        # stack trace
+        report.stack_hash = report_trace.stack_hash
+        report.stack_trace = stack_trace
+        report.stack_summary = CrashReportTrace.get_stack_summary(
+            stack_trace, package_name)
 
         # Parse POST body
         report.package_name             = package_name
@@ -64,8 +72,10 @@ class NewCrashReportHandler(webapp2.RequestHandler):
         report.total_mem_size           = request.get('TOTAL_MEM_SIZE')
 
         # Coerce date strings into parseable format
-        start_date = dateparser.parse(request.get('USER_APP_START_DATE'), ignoretz=True)
-        crash_date = dateparser.parse(request.get('USER_CRASH_DATE'), ignoretz=True)
+        start_date = dateparser.parse(
+            request.get('USER_APP_START_DATE'), ignoretz=True)
+        crash_date = dateparser.parse(
+            request.get('USER_CRASH_DATE'), ignoretz=True)
         report.user_app_start_date      = start_date
         report.user_crash_date          = crash_date
 
@@ -75,39 +85,9 @@ class NewCrashReportHandler(webapp2.RequestHandler):
             report_group.latest_crash_date = report.user_crash_date
             report_group.put()
 
-        # Parse stack trace / summary
-        stack_trace = request.get('STACK_TRACE')
-        report.stack_trace = stack_trace
-        summary = self.get_stack_summary(stack_trace, report.package_name)
-        report.stack_summary = summary[:500]
 
         return report
 
-    def get_stack_summary(self, stack_trace, package_name):
-        lines = stack_trace.split('\n')
-        summary = lines[0]
-        
-        for line in lines[1:]:
-            if line.find(package_name) > 0:
-                summary = summary + ' ' + line.strip('\t')
-                break
-
-        # Stack trace summary = first line + topmost occurance of package_name
-        return summary
-
-class CrashReportHandler(webapp2.RequestHandler):
-    @login_required
-    def get(self, report_id):
-        report = CrashReport.get_by_id(long(report_id))
-
-        template_values = {
-            'report': report,
-        }
-
-        path = os.path.join(os.path.dirname(__file__), 'templates/crashreport.html')
-        self.response.out.write(template.render(path, template_values))
-
 app = webapp2.WSGIApplication([
     ('/api/crashreport',        NewCrashReportHandler),
-    ('/api/crashreport/(\d+)',  CrashReportHandler),
     ], debug=True)

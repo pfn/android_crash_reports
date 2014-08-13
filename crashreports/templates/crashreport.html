@@ -1,5 +1,6 @@
 <html>
   <style type="text/css">
+    .report { display: none; }
     a {
       text-decoration: none;
     }
@@ -7,41 +8,128 @@
       text-decoration: underline;
     }
   </style>
+  <script type="text/javascript">
+      var $  = document.getElementById.bind(document);
+      var $$ = document.getElementsByName.bind(document);
+      var $$c = document.getElementsByClassName.bind(document);
+
+      function localTime(id) {
+          var node = $(id);
+          node.textContent = new Date(node.textContent * 1000).toLocaleString();
+      }
+
+      var pos = 0;
+      var reportCount = 0;
+      var reports;
+
+      function updatePosition(i) {
+          $("report-count").textContent =
+            "Report " + (i+1) + " of " + reportCount;
+
+          reports[pos].style.display = "none";
+          reports[i].style.display = "block";
+
+          window.location.hash = "report-" + reports[i].id;
+
+          pos = i;
+          if (pos == 0) {
+            $('flip-sep').style.visibility = "hidden";
+            $('prev-report').style.visibility = "hidden";
+            $('next-report').style.visibility = "visible";
+          } else if (pos == (reportCount-1)) {
+            $('flip-sep').style.visibility = "hidden";
+            $('next-report').style.visibility = "hidden";
+            $('prev-report').style.visibility = "visible";
+          } else {
+            $('flip-sep').style.visibility = "visible";
+            $('next-report').style.visibility = "visible";
+            $('prev-report').style.visibility = "visible";
+          }
+      }
+
+      window.onload = function() {
+
+          localTime('first-reported-on');
+          reports = $$c("report")
+          reportCount = reports.length;
+          for (var i = 0; i < reportCount; ++i) {
+              localTime('reported-on-' + reports[i].id);
+          }
+
+          $("next-report").onclick = function() {
+            updatePosition(pos + 1);
+            return false;
+          };
+          $("prev-report").onclick = function() {
+            updatePosition(pos - 1);
+            return false;
+          };
+
+          if (reportCount == 1) $('flip-controls').style.visibility = "hidden";
+          if (window.location.hash.indexOf("#report-") == 0) {
+              var repid = window.location.hash.substring(8)
+              var found = false;
+              for (var i = 0; i < reportCount && !found; ++i) {
+                  if (reports[i].id == repid) {
+                      updatePosition(i);
+                      found = true;
+                  }
+              }
+              if (!found) {
+                  updatePosition(pos);
+              }
+          } else {
+              updatePosition(pos);
+          }
+      };
+  </script>
   <body>
     <h3>{{ report.stack_summary }}</h3>
 
     [
       {% if prev %}
-        <a href="{{ prev|get_id }}">&lt; prev |</a>
+        <a href="{{ prev|get_id }}">&lt; prev</a> |
       {% endif %}
       <a href="..">Back</a>
       {% if next %}
-        <a href="{{ next|get_id }}">| next &gt;</a>
+        | <a href="{{ next|get_id }}">next &gt;</a>
       {% endif %}
     ]
 
     <dl>
       <dt>Package name:</td>
       <dd>{{ report.package_name }}</td>
-      <dt>App version:</td>
-      <dd>{{ report.app_version_name }}</td>
-      <dt>Android version:</td>
-      <dd>{{ report.android_version }}</td>
+      <dt>First reported on:</td>
+      <dd id="first-reported-on">{{ report.ts }}</td>
+    </dl>
+
+    <p>
+      <span id="report-count"></span>
+      <span id="flip-controls">
+      |
+      <a id="prev-report" href="#">&lt; prev</a>
+      <span id="flip-sep">|</id>
+      <a id="next-report" href="#">next &gt;</a>
+      </span>
+    </p>
+    {% for r in reports %}
+    <dl class="report" id="{{ r|get_id }}">
       <dt>Reported on:</td>
-      <dd id="reported-on">No Javascript?</td>
+      <dd id="reported-on-{{ r|get_id }}">{{ r.ts }}</td>
+      <dt>App version:</td>
+      <dd>{{ r.app_version_name }}</td>
+      <dt>Android version:</td>
+      <dd>{{ r.android_version }}</td>
       <dt>Stack trace</td>
       <dd><pre>
-{{ report.stack_trace }}
+{{ r.stack_trace }}
 </pre></dd>
       <dt>Logs</dd>
       <dd><pre>
-{{ report.logcat }}
+{{ r.logcat }}
 </pre></dd>
     </dl>
-    <script type="text/javascript">
-      var dt = document.getElementById("reported-on");
-      dt.textContent = new Date({{ report.ts }} * 1000).toLocaleString();
-    </script>
+    {% endfor %}
 
   <form action="../delete/id/{{ report|get_id }}" method="post">
     <input type="submit" name="Delete" value="Delete"/>

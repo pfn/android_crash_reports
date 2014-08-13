@@ -42,7 +42,7 @@
       <input type="checkbox" name="selected" id="{{ r|get_id }}" value="{{ r|get_id }}"/>
       <label for="{{ r|get_id }}" id="report-ts-{{ r|get_id }}">{{ r.ts }}</label>
     </dt>
-    <dd><a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></dd>
+    <dd>({{ r.report_count }}) <a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></dd>
     <script type="text/javascript">
       var dt = $("report-ts-{{ r|get_id }}");
       dt.textContent = new Date({{ r.ts }} * 1000).toLocaleString();

@@ -100,12 +100,13 @@
     ]
 
     <dl>
-      <dt>Package name:</td>
-      <dd>{{ report.package_name }}</td>
-      <dt>First reported on:</td>
-      <dd id="first-reported-on">{{ report.ts }}</td>
+      <dt>Package name</dt>
+      <dd>{{ report.package_name }}</dt>
+      <dt>First reported on</dt>
+      <dd id="first-reported-on">{{ report.ts }}</dt>
     </dl>
 
+    <hr>
     <p>
       <span id="report-count"></span>
       <span id="flip-controls">
@@ -116,13 +117,15 @@
     </p>
     {% for r in reports %}
     <dl class="report" id="{{ r|get_id }}">
-      <dt>Reported on:</td>
-      <dd id="reported-on-{{ r|get_id }}">{{ r.ts }}</td>
-      <dt>App version:</td>
-      <dd>{{ r.app_version_name }}</td>
-      <dt>Android version:</td>
-      <dd>{{ r.android_version }}</td>
-      <dt>Stack trace</td>
+      <dt>Reported on</dt>
+      <dd id="reported-on-{{ r|get_id }}">{{ r.ts }}</dt>
+      <dt>Device</dt>
+      <dd>{{ r.brand }} {{ r.model }} ({{ r.product }})</dd>
+      <dt>App version</dt>
+      <dd>{{ r.app_version_name }} ({{ r.app_version_code }})</dt>
+      <dt>Android version</dt>
+      <dd>{{ r.android_version }}</dt>
+      <dt>Stack trace</dt>
       <dd><pre>
 {{ r.stack_trace }}
 </pre></dd>

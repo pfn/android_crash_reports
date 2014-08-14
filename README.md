@@ -16,7 +16,6 @@ Usage
         formUri = "http://APP_NAME.appspot.com/api/crashreport"
 )
 ```
-
 3. Edit `is_authorized()` in `crashreports/api.py` to allow your applications'
 package names.
 

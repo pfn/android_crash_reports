@@ -10,9 +10,6 @@ handlers:
 - url: /reports/.*
   script: crashreports.crashreports.app
   login: admin
-- url: /admin/.*
-  script: admin.admin.app
-  login: admin
 - url: /
   script: main.main.app
   login: admin

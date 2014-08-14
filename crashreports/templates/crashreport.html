@@ -32,18 +32,20 @@
           window.location.hash = "report-" + reports[i].id;
 
           pos = i;
-          if (pos == 0) {
-            $('flip-sep').style.visibility = "hidden";
-            $('prev-report').style.visibility = "hidden";
-            $('next-report').style.visibility = "visible";
-          } else if (pos == (reportCount-1)) {
-            $('flip-sep').style.visibility = "hidden";
-            $('next-report').style.visibility = "hidden";
-            $('prev-report').style.visibility = "visible";
-          } else {
-            $('flip-sep').style.visibility = "visible";
-            $('next-report').style.visibility = "visible";
-            $('prev-report').style.visibility = "visible";
+          if (reportCount > 1) {
+              if (pos == 0) {
+                $('flip-sep').style.visibility = "hidden";
+                $('prev-report').style.visibility = "hidden";
+                $('next-report').style.visibility = "visible";
+              } else if (pos == (reportCount-1)) {
+                $('flip-sep').style.visibility = "hidden";
+                $('next-report').style.visibility = "hidden";
+                $('prev-report').style.visibility = "visible";
+              } else {
+                $('flip-sep').style.visibility = "visible";
+                $('next-report').style.visibility = "visible";
+                $('prev-report').style.visibility = "visible";
+              }
           }
       }
 
@@ -66,6 +68,7 @@
           };
 
           if (reportCount == 1) $('flip-controls').style.visibility = "hidden";
+
           if (window.location.hash.indexOf("#report-") == 0) {
               var repid = window.location.hash.substring(8)
               var found = false;
@@ -108,9 +111,8 @@
       <span id="flip-controls">
       |
       <a id="prev-report" href="#">&lt; prev</a>
-      <span id="flip-sep">|</id>
+      <span id="flip-sep">|</span>
       <a id="next-report" href="#">next &gt;</a>
-      </span>
     </p>
     {% for r in reports %}
     <dl class="report" id="{{ r|get_id }}">

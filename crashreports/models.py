@@ -17,16 +17,17 @@ class CrashReportGroup(ndb.Model):
         self.package_name = self.key.string_id()
 
 class CrashReportTrace(ndb.Model):
-    created_at    = ndb.DateTimeProperty(auto_now_add=True)
-    package_name  = ndb.StringProperty()
-    stack_hash    = ndb.StringProperty()
-    stack_trace   = ndb.TextProperty()
-    stack_summary = ndb.StringProperty()
+    created_at        = ndb.DateTimeProperty(auto_now_add=True)
+    latest_crash_date = ndb.DateTimeProperty()
+    package_name      = ndb.StringProperty()
+    stack_hash        = ndb.StringProperty()
+    stack_trace       = ndb.TextProperty()
+    stack_summary     = ndb.StringProperty()
 
     @classmethod
     def for_package(cls, package_name):
-        query = cls.query(cls.package_name == package_name)
-        return query.fetch()
+        return cls.query(cls.package_name == package_name).order(
+            -cls.latest_crash_date).fetch()
 
     @classmethod
     def get_trace(cls, groupkey, trace):
@@ -96,8 +97,4 @@ class CrashReport(ndb.Model):
     @classmethod
     def for_trace(cls, package_name, trace):
         return cls.query(cls.package_name == package_name and
-            cls.stack_hash == trace).fetch(limit=50)
-
-    @classmethod
-    def for_package(cls, package_name):
-        return cls.query(cls.package_name == package_name).fetch()
+            cls.stack_hash == trace).order(-cls.created_at).fetch(limit=50)

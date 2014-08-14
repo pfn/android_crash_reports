@@ -5,7 +5,6 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import login_required
 from dateutil import parser as dateparser
 from models import CrashReport, CrashReportGroup, CrashReportTrace
-from admin.models import AccessToken
 
 class NewCrashReportHandler(webapp2.RequestHandler):
     def post(self):
@@ -85,6 +84,9 @@ class NewCrashReportHandler(webapp2.RequestHandler):
             report_group.latest_crash_date = report.user_crash_date
             report_group.put()
 
+        if report_trace.latest_crash_date == None or report.user_crash_date > report_trace.latest_crash_date:
+            report_trace.latest_crash_date = report.user_crash_date
+            report_trace.put()
 
         return report
 

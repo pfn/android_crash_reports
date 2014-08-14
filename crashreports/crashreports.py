@@ -43,7 +43,7 @@ class CrashReportsForPackageHandler(webapp2.RequestHandler):
 
 class CrashReportDeleteHandler(webapp2.RequestHandler):
     def post(self, package_name, trace_id):
-        group = CrashReportGroup.get_group(package_name)
+        group = CrashReportGroup.get_by_id(package_name)
         trace = CrashReportTrace.get_trace(group.key, trace_id)
         ndb.delete_multi(ndb.Query(ancestor=trace.key).iter(keys_only=True))
         trace.key.delete()
@@ -51,7 +51,7 @@ class CrashReportDeleteHandler(webapp2.RequestHandler):
 
 class CrashReportDeletesHandler(webapp2.RequestHandler):
     def post(self, package_name):
-        group = CrashReportGroup.get_group(package_name)
+        group = CrashReportGroup.get_by_id(package_name)
         selected = self.request.get_all("selected")
         selected = map(lambda s: ndb.Key(
             CrashReportTrace, s, parent=group.key), selected)
@@ -62,7 +62,7 @@ class CrashReportDeletesHandler(webapp2.RequestHandler):
 
 class CrashReportHandler(webapp2.RequestHandler):
     def get(self, package_name, trace_id):
-        group = CrashReportGroup.get_group(package_name)
+        group = CrashReportGroup.get_by_id(package_name)
         trace = CrashReportTrace.get_by_id(trace_id, parent=group.key)
         trace = add_ts(trace)
 

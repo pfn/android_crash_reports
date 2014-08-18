@@ -1,5 +1,6 @@
 import os
 import webapp2
+import logging
 from google.appengine.ext import webapp, ndb
 from google.appengine.ext.webapp import template
 from models import CrashReport, CrashReportGroup, CrashReportTrace
@@ -43,8 +44,9 @@ class CrashReportsForPackageHandler(webapp2.RequestHandler):
 
 class CrashReportDeleteHandler(webapp2.RequestHandler):
     def post(self, package_name, trace_id):
+        logging.info("Huh?")
         group = CrashReportGroup.get_by_id(package_name)
-        trace = CrashReportTrace.get_trace(group.key, trace_id)
+        trace = CrashReportTrace.get_by_id(trace_id, parent=group.key)
         ndb.delete_multi(ndb.Query(ancestor=trace.key).iter(keys_only=True))
         trace.key.delete()
         self.redirect("/reports/package/%s?ts=%f" % (package_name, time()))

@@ -1,18 +1,82 @@
-<html>
-  <style type="text/css">
-    .report { display: none; }
-    a {
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+{% extends "base.html" %}
+{% block head %}
+<link rel="import" href="/js/polymer/paper-fab/paper-fab.html">
+{% endblock %}
+{% block title %}
+Crash Report
+{% endblock %}
+{% block pagetitle %}
+Crash Report
+{% endblock %}
+{% block actionitems %}
+  {% if prev %}
+  <paper-icon-button prev icon="arrow-back"></paper-icon-button>
   <script type="text/javascript">
-      var $  = document.getElementById.bind(document);
-      var $$ = document.getElementsByName.bind(document);
-      var $$c = document.getElementsByClassName.bind(document);
+    $("[prev]").onclick = function() {
+      window.location = "{{ prev|get_id }}";
+    };
+  </script>
+  {% endif %}
+  {% if next %}
+  <paper-icon-button next icon="arrow-forward"></paper-icon-button>
+  <script type="text/javascript">
+    $("[next]").onclick = function() {
+      window.location = "{{ next|get_id }}";
+    };
+  </script>
+  {% endif %}
+{% endblock %}
+{% block homemenu %}
+  <paper-icon-button back icon="chevron-left"></paper-icon-button>
+  <script type="text/javascript">
+    document.querySelector("[back]").onclick = function() {
+      window.location = "..";
+    };
+  </script>
+{% endblock %}
+{% block menu %}
+  <paper-menu-button icon="more-vert" halign="right">
+    <paper-item delete icon="delete" label="Delete"</paper-item>
+  </paper-menu-button>
+  <script type="text/javascript">
+    $("[delete]").onclick = function() {
+      $("#delete-form").submit();
+    }
+  </script>
+{% endblock %}
+{% block style %}
+  html /deep/ core-popup-menu::shadow #menu {
+    overflow: auto !important;
+  }
+  .report { display: none; }
+  a {
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  dl {
+    padding: 16px;
+  }
+  #reports-control {
+    padding: 0 16px;
+  }
 
+  #prev-report, #next-report {
+    visibility: hidden;
+    position: fixed;
+    bottom: 16px;
+    background: #4285f4;
+  }
+  #next-report {
+    right: 32px;
+  }
+  #prev-report {
+    right: 96px;
+  }
+{% endblock %}
+{% block content %}
+  <script type="text/javascript">
       function localTime(id) {
           var node = $(id);
           node.textContent = new Date(node.textContent * 1000).toLocaleString();
@@ -23,7 +87,7 @@
       var reports;
 
       function updatePosition(i) {
-          $("report-count").textContent =
+          $("#report-count").textContent =
             "Report " + (i+1) + " of " + reportCount;
 
           reports[pos].style.display = "none";
@@ -34,40 +98,37 @@
           pos = i;
           if (reportCount > 1) {
               if (pos == 0) {
-                $('flip-sep').style.visibility = "hidden";
-                $('prev-report').style.visibility = "hidden";
-                $('next-report').style.visibility = "visible";
+                $('#prev-report').style.visibility = "hidden";
+                $('#next-report').style.visibility = "visible";
               } else if (pos == (reportCount-1)) {
-                $('flip-sep').style.visibility = "hidden";
-                $('next-report').style.visibility = "hidden";
-                $('prev-report').style.visibility = "visible";
+                $('#next-report').style.visibility = "hidden";
+                $('#prev-report').style.visibility = "visible";
               } else {
-                $('flip-sep').style.visibility = "visible";
-                $('next-report').style.visibility = "visible";
-                $('prev-report').style.visibility = "visible";
+                $('#next-report').style.visibility = "visible";
+                $('#prev-report').style.visibility = "visible";
               }
           }
       }
 
       window.onload = function() {
 
-          localTime('first-reported-on');
-          reports = $$c("report")
+          localTime('#first-reported-on');
+          reports = $$(".report")
           reportCount = reports.length;
           for (var i = 0; i < reportCount; ++i) {
-              localTime('reported-on-' + reports[i].id);
+              localTime('#reported-on-' + reports[i].id);
           }
 
-          $("next-report").onclick = function() {
+          $("#next-report").onclick = function() {
             updatePosition(pos + 1);
             return false;
           };
-          $("prev-report").onclick = function() {
+          $("#prev-report").onclick = function() {
             updatePosition(pos - 1);
             return false;
           };
 
-          if (reportCount == 1) $('flip-controls').style.visibility = "hidden";
+          if (reportCount == 1) $('#flip-controls').style.visibility = "hidden";
 
           if (window.location.hash.indexOf("#report-") == 0) {
               var repid = window.location.hash.substring(8)
@@ -86,18 +147,8 @@
           }
       };
   </script>
-  <body>
     <h3>{{ report.stack_summary }}</h3>
 
-    [
-      {% if prev %}
-        <a href="{{ prev|get_id }}">&lt; prev</a> |
-      {% endif %}
-      <a href="..">Back</a>
-      {% if next %}
-        | <a href="{{ next|get_id }}">next &gt;</a>
-      {% endif %}
-    ]
 
     <dl>
       <dt>Package name</dt>
@@ -107,14 +158,14 @@
     </dl>
 
     <hr>
-    <p>
+    <div id="reports-control" layout horizontal center>
       <span id="report-count"></span>
+
+      <div flex></div>
       <span id="flip-controls">
-      |
-      <a id="prev-report" href="#">&lt; prev</a>
-      <span id="flip-sep">|</span>
-      <a id="next-report" href="#">next &gt;</a>
-    </p>
+      <paper-fab id="prev-report" icon="arrow-back"></paper-fab>
+      <paper-fab id="next-report" icon="arrow-forward"></paper-fab>
+    </div>
     {% for r in reports %}
     <dl class="report" id="{{ r|get_id }}">
       <dt>Reported on</dt>
@@ -125,19 +176,18 @@
       <dd>{{ r.app_version_name }} ({{ r.app_version_code }})</dt>
       <dt>Android version</dt>
       <dd>{{ r.android_version }}</dt>
-      <dt>Stack trace</dt>
-      <dd><pre>
-{{ r.stack_trace }}
-</pre></dd>
       <dt>Logs</dd>
       <dd><pre>
 {{ r.logcat }}
 </pre></dd>
+      <dt>Stack trace</dt>
+      <dd><pre>
+{{ r.stack_trace }}
+</pre></dd>
     </dl>
     {% endfor %}
 
-  <form action="../delete/id/{{ report|get_id }}" method="post">
-    <input type="submit" name="Delete" value="Delete"/>
+  <form id="delete-form"
+      action="../delete/id/{{ report|get_id }}" method="post">
   </form>
-  </body>
-</html>
+{% endblock %}

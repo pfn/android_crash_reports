@@ -1,0 +1,50 @@
+<link rel="import" href="../polymer/polymer/polymer.html">
+<link rel="import" href="../polymer/paper-item/paper-item.html">
+<link rel="import" href="../polymer/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../polymer/paper-ripple/paper-ripple.html">
+
+<polymer-element name="report-item-card" attributes="reportid count ts summary checked href" layout vertical>
+  <template>
+    <style>
+      :host paper-checkbox {
+        padding: 16px;
+      }
+      :host paper-item {
+        white-space: normal !important;
+        height: auto !important;
+      }
+    </style>
+    <paper-checkbox id="check" label="({{ count }}) {{_ts}}"></paper-checkbox>
+    <paper-item label="{{summary}}" horizontal?="{{false}}">
+      <a href="{{href}}"></a>
+    </paper-item>
+    <content></content>
+  </template>
+  <script>
+    (function() {
+      Polymer({
+        _ts: "",
+        ts: 0,
+        tsChanged: function(oldval, newval) {
+          this._ts = new Date(newval * 1000).toLocaleString();
+        },
+        ready: function() {
+          var self = this;
+          this.checked = self.$.check.checked;
+          this.$.check.addEventListener("core-change", function() {
+            self.checked = self.$.check.checked;
+          });
+        },
+        checked: {
+          value: false,
+          reflect: true,
+        },
+        checkedChanged: function(oldval, newval) {
+          if (this.$.check.checked != newval) {
+            this.$.check.checked = newval;
+          }
+        },
+      });
+    })()
+  </script>
+</polymer-element>

@@ -1,54 +1,70 @@
-<html>
-  <style type="text/css">
-    a {
-      text-decoration: none;
+{% extends "base.html" %}
+{% block title %}
+{% block head %}
+<link rel="import" href="/js/component/report-item-card.html">
+{% endblock %}
+Crash Reports
+{% endblock %}
+{% block pagetitle %}
+Crash Reports
+{% endblock %}
+{% block style %}
+  html /deep/ core-popup-menu::shadow #menu {
+    overflow: auto !important;
+  }
+{% endblock %}
+{% block homemenu %}
+  <paper-icon-button back icon="chevron-left"></paper-icon-button>
+  <script type="text/javascript">
+    document.querySelector("[back]").onclick = function() {
+      window.location = "..";
+    };
+  </script>
+{% endblock %}
+{% block menu %}
+  <paper-menu-button icon="more-vert" halign="right">
+    <paper-item selall label="Select/Deselect All"></paper-item>
+    <paper-item delsel label="Delete Selected"</paper-item>
+  </paper-menu-button>
+  <script type="text/javascript">
+    $("[selall]").onclick = function() {
+      var mode = undefined;
+      var inputs = $$("report-item-card");
+      for (var i = 0; i < inputs.length; ++i) {
+        if (mode === undefined) {
+          mode = !inputs[i].checked;
+        }
+
+        inputs[i].checked = mode;
+      }
+      return false;
+    };
+    $("[delsel]").onclick = function() {
+      var inputs = $$("report-item-card");
+      var form = $("#reports-form");
+      for (var i = 0; i < inputs.length; ++i) {
+        if (inputs[i].checked) {
+          var e = document.createElement("input");
+          e.type = "hidden";
+          e.name = "selected";
+          e.value = inputs[i].reportid;
+          form.appendChild(e);
+        }
+      }
+      form.submit();
     }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
-  <body>
-    <script type="text/javascript">
-      var $  = document.getElementById.bind(document);
-      var $$ = document.getElementsByName.bind(document);
+  </script>
+{% endblock %}
 
-      window.onload = function() {
-        $("toggle").onclick = function() {
-          var mode = undefined;
-          var inputs = $("reports-form").elements;
-          for (var i = 0; i < inputs.length; ++i) {
-            if (inputs[i].type == "checkbox") {
-              if (mode === undefined) {
-                mode = !inputs[i].checked;
-              }
-
-              inputs[i].checked = mode;
-            }
-          }
-          return false;
-        };
-      };
-    </script>
-    [ <a href="..">Back</a> ]
-
-    <form id="reports-form" method="post" action="{{ pkg }}/delete">
-    <p>
-    <a id="toggle" href="#">Select/Deselect All</a>
-    </p>
-    <input type="submit" value="Delete selected"/>
-    <dl>
-    {% for r in reports %}
-    <dt>
-      <input type="checkbox" name="selected" id="{{ r|get_id }}" value="{{ r|get_id }}"/>
-      <label for="{{ r|get_id }}" id="report-ts-{{ r|get_id }}">{{ r.ts }}</label>
-    </dt>
-    <dd>({{ r.report_count }}) <a href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">{{ r.stack_summary }}</a></dd>
-    <script type="text/javascript">
-      var dt = $("report-ts-{{ r|get_id }}");
-      dt.textContent = new Date({{ r.ts }} * 1000).toLocaleString();
-    </script>
-    {% endfor %}
-    </dl>
-    </form>
-  </body>
-</html>
+{% block content %}
+  <h2>{{ pkg }}</h2>
+  {% for r in reports %}
+  <report-item-card reportid="{{ r|get_id }}" count="{{ r.report_count }}"
+    ts="{{ r.ts }}" summary="{{ r.stack_summary }}"
+    href="/reports/package/{{ r.package_name }}/id/{{ r|get_id }}">
+  </report-item-card>
+  {% endfor %}
+  </dl>
+  <form id="reports-form" method="post" action="{{ pkg }}/delete">
+  </form>
+{% endblock %}

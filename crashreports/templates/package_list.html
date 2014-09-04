@@ -1,7 +1,12 @@
-<html>
-  <body>
-    {% for package_name, report_count in reports.items %}
-    <p><a href="/reports/package/{{ package_name|urlencode }}">{{ package_name }}</a> ({{ report_count }})</p>
-    {% endfor %}
-  </body>
-</html>
+{% extends "base.html" %}
+{% block pagetitle %}All Packages{% endblock %}
+{% block title %}All Packages{% endblock %}
+{% block content %}
+    <core-menu>
+      {% for package_name, report_count in reports.items %}
+      <paper-item label="{{ package_name }} ({{ report_count }})">
+        <a href="/reports/package/{{ package_name|urlencode }}"></a>
+      </paper-item>
+      {% endfor %}
+    </core-menu>
+{% endblock %}

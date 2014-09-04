@@ -57,7 +57,8 @@ Crash Reports
 {% endblock %}
 
 {% block content %}
-  <h2>{{ pkg }}</h2>
+<h2>{{ pkg }}</h2>
+{% if reports %}
   {% for r in reports %}
   <report-item-card reportid="{{ r|get_id }}" count="{{ r.report_count }}"
     ts="{{ r.ts }}" summary="{{ r.stack_summary }}"
@@ -67,4 +68,7 @@ Crash Reports
   </dl>
   <form id="reports-form" method="post" action="{{ pkg }}/delete">
   </form>
+{% else %}
+  <h3>No crashes reported</h3>
+{% endif %}
 {% endblock %}

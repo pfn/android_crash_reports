@@ -2,6 +2,7 @@
 {% block pagetitle %}All Packages{% endblock %}
 {% block title %}All Packages{% endblock %}
 {% block content %}
+{% if reports.items %}
     <core-menu>
       {% for package_name, report_count in reports.items %}
       <paper-item label="{{ package_name }} ({{ report_count }})">
@@ -9,4 +10,7 @@
       </paper-item>
       {% endfor %}
     </core-menu>
+{% else %}
+<h2>No apps have reported crashes</h2>
+{% endif %}
 {% endblock %}

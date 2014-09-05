@@ -5,8 +5,24 @@ api_version: 1
 threadsafe: true
 
 handlers:
-- url: /js
-  static_dir: js
+- url: /js/(.*\.html)
+  static_files: js/\1
+  upload: js/(.*\.html)
+
+- url: /js/(.*\.js)
+  static_files: js/\1
+  upload: js/(.*\.js)
+
+#- url: /js/(.*\.md)
+#  mime_type: text/plain
+#  static_files: js/\1
+#  upload: js/(.*\.md)
+
+#- url: /js/(.*\.json)
+#  mime_type: text/plain
+#  static_files: js/\1
+#  upload: js/(.*\.json)
+
 - url: /api/.*
   script: crashreports.api.app
 - url: /reports/.*

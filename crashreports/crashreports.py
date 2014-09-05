@@ -6,11 +6,12 @@ from google.appengine.ext.webapp import template
 from models import CrashReport, CrashReportGroup, CrashReportTrace
 from utils.decorators import cached
 from time import mktime, time
+from functools import partial
 
 webapp.template.register_template_library('crashreports.templatefilters')
 
-def add_ts(report):
-    report.ts = int(mktime(report.created_at.timetuple()))
+def add_ts(attr, report, ts = "ts"):
+    setattr(report, ts, int(mktime(getattr(report, attr).timetuple())))
     return report
 
 class CrashReportListHandler(webapp2.RequestHandler):
@@ -31,7 +32,7 @@ class CrashReportListHandler(webapp2.RequestHandler):
 class CrashReportsForPackageHandler(webapp2.RequestHandler):
     def get(self, package_name):
         reports = CrashReportTrace.for_package(package_name)
-        reports = map(add_ts, reports)
+        reports = map(partial(add_ts, "latest_crash_date"), reports)
         reports.sort(lambda x,y: y.ts - x.ts)
 
         template_values = {
@@ -44,7 +45,6 @@ class CrashReportsForPackageHandler(webapp2.RequestHandler):
 
 class CrashReportDeleteHandler(webapp2.RequestHandler):
     def post(self, package_name, trace_id):
-        logging.info("Huh?")
         group = CrashReportGroup.get_by_id(package_name)
         trace = CrashReportTrace.get_by_id(trace_id, parent=group.key)
         ndb.delete_multi(ndb.Query(ancestor=trace.key).iter(keys_only=True))
@@ -66,14 +66,15 @@ class CrashReportHandler(webapp2.RequestHandler):
     def get(self, package_name, trace_id):
         group = CrashReportGroup.get_by_id(package_name)
         trace = CrashReportTrace.get_by_id(trace_id, parent=group.key)
-        trace = add_ts(trace)
+        trace = add_ts("latest_crash_date", trace)
 
         traces = CrashReportTrace.for_package(package_name)
-        traces = map(add_ts, traces)
+        traces = map(partial(add_ts, "latest_crash_date"), traces)
         traces.sort(lambda x,y: y.ts - x.ts)
         index = map(lambda x: x.key.string_id(), traces).index(trace.key.string_id())
         reports = CrashReport.for_trace(package_name, trace_id)
-        reports = map(add_ts, reports)
+        reports = map(partial(add_ts, "created_at"), reports)
+        reports = map(partial(add_ts, "user_crash_date", ts = "crash_ts"), reports)
         reports.sort(lambda x,y: y.ts - x.ts)
 
         if index == 0:

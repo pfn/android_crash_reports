@@ -13,6 +13,10 @@ handlers:
   static_files: js/\1
   upload: js/(.*\.js)
 
+- url: /js/(.*\.map)
+  static_files: js/\1
+  upload: js/(.*\.map)
+
 #- url: /js/(.*\.md)
 #  mime_type: text/plain
 #  static_files: js/\1

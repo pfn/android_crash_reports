@@ -114,6 +114,7 @@ Crash Report
           reportCount = reports.length;
           for (var i = 0; i < reportCount; ++i) {
               localTime('#reported-on-' + reports[i].id);
+              localTime('#crashed-on-' + reports[i].id);
           }
 
           $("#next-report").onclick = function() {
@@ -165,8 +166,10 @@ Crash Report
     </div>
     {% for r in reports %}
     <dl class="report" id="{{ r|get_id }}">
-      <dt>Reported on</dt>
+      <dt>Reported at</dt>
       <dd id="reported-on-{{ r|get_id }}">{{ r.ts }}</dt>
+      <dt>Crashed at</dt>
+      <dd id="crashed-on-{{ r|get_id }}">{{ r.ts }}</dt>
       <dt>Device</dt>
       <dd>{{ r.brand }} {{ r.model }} ({{ r.product }})</dd>
       <dt>App version</dt>

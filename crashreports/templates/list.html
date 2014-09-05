@@ -63,7 +63,7 @@ Crash Reports
   </report-item-card>
   {% endfor %}
   </dl>
-  <form id="reports-form" method="post" action="{{ pkg }}/delete">
+  <form id="reports-form" method="post" action="/reports/package/{{ pkg }}/delete">
   </form>
 {% else %}
   <h3>No crashes reported</h3>

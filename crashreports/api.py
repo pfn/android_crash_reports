@@ -1,9 +1,12 @@
 import os
+import logging
 import urlparse
 import webapp2
+from datetime import datetime
+from time import mktime
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import login_required
-from dateutil import parser as dateparser
+from dateutil import tz, parser as dateparser
 from models import CrashReport, CrashReportGroup, CrashReportTrace
 
 class NewCrashReportHandler(webapp2.RequestHandler):
@@ -71,12 +74,15 @@ class NewCrashReportHandler(webapp2.RequestHandler):
         report.total_mem_size           = request.get('TOTAL_MEM_SIZE')
 
         # Coerce date strings into parseable format
-        start_date = dateparser.parse(
-            request.get('USER_APP_START_DATE'), ignoretz=True)
-        crash_date = dateparser.parse(
-            request.get('USER_CRASH_DATE'), ignoretz=True)
-        report.user_app_start_date      = start_date
-        report.user_crash_date          = crash_date
+
+        start_date = dateparser.parse(request.get('USER_APP_START_DATE'))
+        crash_date = dateparser.parse(request.get('USER_CRASH_DATE'))
+
+        # convert time zones
+        report.user_app_start_date      = datetime.fromtimestamp(
+                mktime(start_date.utctimetuple()))
+        report.user_crash_date          = datetime.fromtimestamp(
+                mktime(crash_date.utctimetuple()))
 
         # If this crash report's timestamp is more recent than its parent's
         # latest crash date, update the parent group

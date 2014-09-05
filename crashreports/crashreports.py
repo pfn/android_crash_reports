@@ -66,7 +66,7 @@ class CrashReportHandler(webapp2.RequestHandler):
     def get(self, package_name, trace_id):
         group = CrashReportGroup.get_by_id(package_name)
         trace = CrashReportTrace.get_by_id(trace_id, parent=group.key)
-        trace = add_ts("created_at", trace)
+        trace = add_ts("created_at", trace, ts = "created_ts")
 
         traces = CrashReportTrace.for_package(package_name)
         traces = map(partial(add_ts, "latest_crash_date"), traces)

@@ -14,6 +14,8 @@ Screenshots
 Usage
 =====
 
+* Install `node.js` and `npm install vulcanize`
+* `vulcanize -s --inline -o js/polymer.html js/dependencies.html`
 * Edit `app.yaml` set `application` to `APP_NAME`
 * Edit `is_authorized()` in `crashreports/api.py` to allow your applications'
   package names.

@@ -45,7 +45,6 @@ Crash Report
   html /deep/ core-popup-menu::shadow #menu {
     overflow: auto !important;
   }
-  .report { display: none; }
   a {
     text-decoration: none;
   }
@@ -71,6 +70,9 @@ Crash Report
   #prev-report {
     right: 96px;
   }
+  paper-fab {
+    z-index: 10;
+  }
 {% endblock %}
 {% block content %}
   <script type="text/javascript">
@@ -87,8 +89,7 @@ Crash Report
           $("#report-count").textContent =
             "Report " + (i+1) + " of " + reportCount;
 
-          reports[pos].style.display = "none";
-          reports[i].style.display = "block";
+          $("core-pages").selected = i;
 
           window.location.hash = "report-" + reports[i].id;
 
@@ -164,7 +165,9 @@ Crash Report
       <paper-fab id="prev-report" icon="arrow-back"></paper-fab>
       <paper-fab id="next-report" icon="arrow-forward"></paper-fab>
     </div>
+    <core-pages selected="0">
     {% for r in reports %}
+    <div>
     <dl class="report" id="{{ r|get_id }}">
       <dt>Reported at</dt>
       <dd id="reported-on-{{ r|get_id }}">{{ r.ts }}</dt>
@@ -185,7 +188,9 @@ Crash Report
 {{ r.stack_trace }}
 </pre></dd>
     </dl>
+    </div>
     {% endfor %}
+    </core-pages>
 
   <form id="delete-form"
       action="../delete/id/{{ report|get_id }}" method="post">

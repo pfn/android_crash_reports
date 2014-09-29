@@ -11,7 +11,10 @@ from functools import partial
 webapp.template.register_template_library('crashreports.templatefilters')
 
 def add_ts(attr, report, ts = "ts"):
-    setattr(report, ts, int(mktime(getattr(report, attr).timetuple())))
+    t = getattr(report, attr)
+    if not t:
+        t = getattr(report, "created_at")
+    setattr(report, ts, int(mktime(t.timetuple())))
     return report
 
 class CrashReportListHandler(webapp2.RequestHandler):

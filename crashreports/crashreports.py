@@ -68,7 +68,14 @@ class CrashReportDeletesHandler(webapp2.RequestHandler):
 class CrashReportHandler(webapp2.RequestHandler):
     def get(self, package_name, trace_id):
         group = CrashReportGroup.get_by_id(package_name)
+        if not group:
+            self.redirect("/reports/" % (package_name, time()))
+            return
+
         trace = CrashReportTrace.get_by_id(trace_id, parent=group.key)
+        if not trace:
+            self.redirect("/reports/package/%s?ts=%f" % (package_name, time()))
+            return
         trace = add_ts("created_at", trace, ts = "created_ts")
 
         traces = CrashReportTrace.for_package(package_name)

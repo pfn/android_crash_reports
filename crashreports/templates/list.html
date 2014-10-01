@@ -18,11 +18,13 @@ Crash Reports
     };
   </script>
 {% endblock %}
+{% block actionitems %}
+  {% if reports %}
+  <paper-icon-button selall icon="check-box-outline"></paper-icon-button>
+  <paper-icon-button delsel icon="delete"></paper-icon-button>
+  {% endif %}
+{% endblock %}
 {% block menu %}
-  <paper-menu-button icon="more-vert" halign="right">
-    <paper-item selall label="Select/Deselect All"></paper-item>
-    <paper-item delsel label="Delete Selected"</paper-item>
-  </paper-menu-button>
   <script type="text/javascript">
     $("[selall]").onclick = function() {
       var mode = undefined;

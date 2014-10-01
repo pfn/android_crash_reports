@@ -5,45 +5,8 @@ Crash Report
 {% block pagetitle %}
 Crash Report
 {% endblock %}
-{% block actionitems %}
-  {% if prev %}
-  <paper-icon-button prev icon="arrow-back"></paper-icon-button>
-  <script type="text/javascript">
-    $("[prev]").onclick = function() {
-      window.location = "{{ prev|get_id }}";
-    };
-  </script>
-  {% endif %}
-  {% if next %}
-  <paper-icon-button next icon="arrow-forward"></paper-icon-button>
-  <script type="text/javascript">
-    $("[next]").onclick = function() {
-      window.location = "{{ next|get_id }}";
-    };
-  </script>
-  {% endif %}
-{% endblock %}
 {% block homemenu %}
-  <paper-icon-button back icon="chevron-left"></paper-icon-button>
-  <script type="text/javascript">
-    document.querySelector("[back]").onclick = function() {
-      window.location = "..";
-    };
-  </script>
-{% endblock %}
-{% block menu %}
-  <paper-menu-button icon="more-vert" halign="right">
-    <paper-item share  icon="social:share" label="Share"></paper-item>
-    <paper-item delete icon="delete" label="Delete"</paper-item>
-  </paper-menu-button>
-  <script type="text/javascript">
-    $("[delete]").onclick = function() {
-      $("#delete-form").submit();
-    }
-    $("[share]").onclick = function() {
-      window.location.href = window.location.href.replace(
-          "reports/package", "public");
-    }
+  <paper-icon-button back icon="bug-report"></paper-icon-button>
   </script>
 {% endblock %}
 {% block style %}

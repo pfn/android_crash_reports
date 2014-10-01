@@ -5,6 +5,10 @@ api_version: 1
 threadsafe: true
 
 handlers:
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
+
 - url: /js/(.*\.html)
   static_files: js/\1
   upload: js/(.*\.html)
@@ -31,11 +35,16 @@ handlers:
 #  static_files: js/\1
 #  upload: js/(.*\.json)
 
+- url: /public/.*
+  script: crashreports.public.app
+
 - url: /api/.*
   script: crashreports.api.app
+
 - url: /reports/.*
   script: crashreports.crashreports.app
   login: admin
+
 - url: /
   script: main.main.app
   login: admin

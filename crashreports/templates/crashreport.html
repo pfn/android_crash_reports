@@ -33,16 +33,14 @@ Crash Report
 {% endblock %}
 {% block menu %}
   <paper-menu-button icon="more-vert" halign="right">
-    <paper-item share  icon="social:share" label="Share"></paper-item>
+    <paper-item share  icon="social:share" label="Share">
+      <a href="/public/{{ report.package_name|urlencode }}/{{ report|get_id }}"></a>
+    </paper-item>
     <paper-item delete icon="delete" label="Delete"</paper-item>
   </paper-menu-button>
   <script type="text/javascript">
     $("[delete]").onclick = function() {
       $("#delete-form").submit();
-    }
-    $("[share]").onclick = function() {
-      window.location.href = window.location.href.replace(
-          "reports/package", "public");
     }
   </script>
 {% endblock %}
